@@ -19,6 +19,9 @@ class DataPattern(object):
     def add(self, name, factors):
         self.patterns[name] = DataFactor(factors)
 
+    def clear(self):
+        self.patterns.clear()
+
     def generate(self):
         dict_pattern = []
         for name, factors in self.patterns.items():
@@ -44,3 +47,31 @@ class DataPattern(object):
             sub_product = self.product(args)
             result = [[s] + p for s in sub for p in sub_product]
             return result
+
+
+    def generate_by_key(self):
+        dict_pattern = []
+        pattern_count = 1
+        for name, factors in self.patterns.items():
+            dict_factors = [f for f in factors.product()]
+            pattern_count *= len(dict_factors)
+            dict_pattern.append(dict(zip([name], [dict_factors])))
+            # dict(zip([name], [f])) 
+
+        result = self.repeat(pattern_count, dict_pattern)
+        return result
+
+    def repeat(self, max_len, args):
+        cur_len = max_len
+        result = []
+        for dict_factors in args:
+            line = []
+            for key, factors in dict_factors.items():
+                list_factors = []
+                cur_len //= len(factors)
+                for i in range(max_len // (cur_len * len(factors))):
+                    for f in factors:
+                        list_factors.extend(list(itertools.repeat(f, cur_len)))
+                line.append(list_factors)
+            result.append(dict(zip([key], [list_factors])))
+        return result
